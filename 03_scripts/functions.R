@@ -3,6 +3,10 @@ library(here)
 library(httr)
 library(jsonlite)
 
+# create a function to define user_location and store it in a variable
+
+
+
 
 # create wrapper function to get coordinates from opencage api.
 
@@ -32,7 +36,7 @@ geocoding_response$status_code
 geocoding_response_json <- httr::content(geocoding_response, as = "text") %>%
                           fromJSON()
 
-# extract coordinates
+# extract coordinates (long/lat)
 
-geocoding_response_json$results$geometry$lat
-geocoding_response_json$results$geometry$lng
+user_lat <- geocoding_response_json$results$geometry$lat[1]
+user_lng <- geocoding_response_json$results$geometry$lng[1]
