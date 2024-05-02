@@ -1,19 +1,17 @@
 library(jsonlite)
+library(here)
 
-# Load data using here
-opendata_swiss_toilettes <- fromJSON("TOILETTE.json")
+# Load data using fromJSON and here
+opendata_swiss_toilettes <- fromJSON(here("01_data_input", "TOILETTE.json"))
 
-# Extract relevant information
-toilettes_data <- opendata_swiss_toilettes$features
-extracted_data <- lapply(toilettes_data, function(feature) {
-  c(
-    feature$geometry$coordinates[[1]],
-    feature$geometry$coordinates[[2]],
-    feature$properties$NAME,
-    feature$properties$IN_BETRIEB,
-    feature$properties$HINDERNISFREI
-  )
+# Create a new list to store combined properties and coordinates
+opendata_swiss_toilettes_combine_coordinates_features <- lapply(1:nrow(opendata_swiss_toilettes$features), function(i) {
+  # Extract properties and coordinates
+  properties <- opendata_swiss_toilettes$features$properties[i, ]
+  coordinates <- opendata_swiss_toilettes$features$geometry$coordinates[[i]]  # Access coordinates list
+  
+  # Combine properties and coordinates into a single structure
+  combined <- list(properties = properties, coordinates = coordinates)
+  
+  return(combined)
 })
-
-# Convert list to dataframe
-opendata_swiss_toilettes_df <- as.data.frame(do.call(rbind, extracted_data))
