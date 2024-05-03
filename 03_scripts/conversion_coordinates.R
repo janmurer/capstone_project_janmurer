@@ -1,4 +1,5 @@
 library(sf)
+library(dplyr)
 
 # Create an sf object with the coordinates
 coords_sf <- st_as_sf(opendata_swiss_toilettes_df_cleaned, coords = c("x_coord", "y_coord"))
@@ -10,8 +11,8 @@ st_crs(coords_sf) <- 2056
 coords_sf_wgs84 <- st_transform(coords_sf, crs = 4326)
 
 # Extract transformed coordinates
-opendata_swiss_toilettes_df_cleaned <- cbind(opendata_swiss_toilettes_df_cleaned, st_coordinates(coords_sf_wgs84))
+opendata_swiss_toilettes_df_cleaned_international_coordinates <- cbind(opendata_swiss_toilettes_df_cleaned, st_coordinates(coords_sf_wgs84))
 
-# Rename the new columns
-colnames(opendata_swiss_toilettes_df_cleaned)[6:7] <- c("latitude", "longitude")
+# Rename columns
 
+opendata_swiss_toilettes_df_cleaned_international_coordinates <- rename(opendata_swiss_toilettes_df_cleaned_international_coordinates, latitude = Y, longitude = X)

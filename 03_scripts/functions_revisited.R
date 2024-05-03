@@ -60,13 +60,21 @@ get_user_coordinates <- function() {
     user_lat <- geocoding_response_json$results$geometry$lat[1]
     user_lng <- geocoding_response_json$results$geometry$lng[1]
     
-    # Store coordinates in a list
-    coordinates_list <- list(latitude = user_lat, longitude = user_lng)
+    # Create a dataframe named user_coordinates
+    user_coordinates <- data.frame(latitude = user_lat, longitude = user_lng)
     
-    return(coordinates_list)
+    # Print the result
+    print(user_coordinates)
+    
+    # No need to return the result since it's stored locally
   } else {
     stop("Request failed with status code ", geocoding_response$status_code)
   }
 }
+
+
+
+
+
 
 
