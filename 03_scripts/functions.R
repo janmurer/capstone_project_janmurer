@@ -20,31 +20,36 @@ define_user_location <- function(address) {
 
 
 
-# Function to get user coordinates using OpenCage API
+# Wrapperfunction to get user coordinates using OpenCage API
 
 get_user_coordinates <- function() {
+  
   # Make a GET request
+  
   geocoding_response <- httr::GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
   
   # Check status code
+  
   if (geocoding_response$status_code == 200) {
+    
     # Convert response to json
+    
     geocoding_response_json <- httr::content(geocoding_response, as = "text") %>%
       fromJSON()
     
     # Extract coordinates (latitude/longitude)
+    
     user_lat <- geocoding_response_json$results$geometry$lat[1]
     user_lng <- geocoding_response_json$results$geometry$lng[1]
     
     # Create a dataframe named user_coordinates
+    
     user_coordinates <- data.frame(latitude = user_lat, longitude = user_lng)
     
-    # Print the result
-    print(user_coordinates)
-    
-    # No need to return the result since it's stored locally
   } else {
+    
     stop("Request failed with status code ", geocoding_response$status_code)
+    
   }
 }
 
@@ -66,13 +71,13 @@ find_nearest_location <- function(user_coordinates, locations_df) {
   
   # Print the name of the nearest location
   
-  print(locations_df$NAME[nearest_index])
+  cat("The nearest public toilet to you is located at: ", locations_df$NAME[nearest_index], "\n")
 }
 
 
 
 
-# Function to fetch data from opendata.swiss API
+# Wrapperfunction to fetch data from opendata.swiss API
 
 fetch_opendata_swiss <- function(dataset_id) {
   
@@ -111,14 +116,21 @@ fetch_opendata_swiss <- function(dataset_id) {
       writeBin(content(dataset, "raw"), temp_zip)
       
       # Unzip the dataset to "01_data_input" folder using base R function
+      
       unzip(temp_zip, exdir = here("01_data_input"))
       
       return(paste("Dataset downloaded and extracted to '01_data_input' folder"))
+      
     } else {
+      
       return("No resources found for this dataset.")
+      
     }
+    
   } else {
+    
     return("Failed to fetch data.")
+    
   }
 }
 

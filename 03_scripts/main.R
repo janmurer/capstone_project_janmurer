@@ -5,7 +5,7 @@ source("03_scripts/opendata_swiss.R")
 
 # Define your location
 
-define_user_location("Hochrütistrasse 35, 6005 Luzern, Switzerland")
+define_user_location("Hallwilerweg 16, 6000 Luzern, Switzerland")
 
 # Fetch your exact coordinates and store them in a variable
 

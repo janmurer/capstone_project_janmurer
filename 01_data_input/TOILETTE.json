@@ -978,20 +978,20 @@
 			"type" : "Feature",
 			"geometry" : {
 				"type" : "Point",
-				"coordinates" : [ 2665042.489, 1212461.322 ]
+				"coordinates" : [ 2665652.25, 1211471.834 ]
 			},
 			"properties" : {
-				"GlobalID" : "{11C0F036-BEE3-480B-BFE0-23FAB813B321}",
-				"NAME" : "Friedental",
-				"PLZ" : "6004",
-				"IN_BETRIEB" : 0,
+				"GlobalID" : "{5F025382-327A-4EDA-8E7F-451595CC35F7}",
+				"NAME" : "Restaurant Ammos",
+				"PLZ" : "6003",
+				"IN_BETRIEB" : 1,
 				"HINDERNISFREI" : 0,
 				"EUROKEY" : 0,
 				"WASSERANSCHLUSS" : 1,
 				"LINK_ROUTING" : "https://map.stadtluzern.ch/wc-app",
 				"EUROKEY_resolved" : "Nein",
 				"HINDERNISFREI_resolved" : "Nein",
-				"IN_BETRIEB_resolved" : "Nein",
+				"IN_BETRIEB_resolved" : "Ja",
 				"WASSERANSCHLUSS_resolved" : "Ja"
 			}
 		},
@@ -999,12 +999,12 @@
 			"type" : "Feature",
 			"geometry" : {
 				"type" : "Point",
-				"coordinates" : [ 2665652.25, 1211471.834 ]
+				"coordinates" : [ 2664803.299, 1212376.784 ]
 			},
 			"properties" : {
-				"GlobalID" : "{5F025382-327A-4EDA-8E7F-451595CC35F7}",
-				"NAME" : "Restaurant Ammos",
-				"PLZ" : "6003",
+				"GlobalID" : "{8719D83A-60ED-45E7-80FA-6B202C75BDAD}",
+				"NAME" : "Friedental Haupteingang",
+				"PLZ" : "6004",
 				"IN_BETRIEB" : 1,
 				"HINDERNISFREI" : 0,
 				"EUROKEY" : 0,
@@ -1146,20 +1146,20 @@
 			"type" : "Feature",
 			"geometry" : {
 				"type" : "Point",
-				"coordinates" : [ 2664803.299, 1212376.784 ]
+				"coordinates" : [ 2665042.489, 1212461.322 ]
 			},
 			"properties" : {
-				"GlobalID" : "{8719D83A-60ED-45E7-80FA-6B202C75BDAD}",
-				"NAME" : "Friedental Haupteingang",
+				"GlobalID" : "{11C0F036-BEE3-480B-BFE0-23FAB813B321}",
+				"NAME" : "Friedental",
 				"PLZ" : "6004",
-				"IN_BETRIEB" : 1,
+				"IN_BETRIEB" : 0,
 				"HINDERNISFREI" : 0,
 				"EUROKEY" : 0,
 				"WASSERANSCHLUSS" : 1,
 				"LINK_ROUTING" : "https://map.stadtluzern.ch/wc-app",
 				"EUROKEY_resolved" : "Nein",
 				"HINDERNISFREI_resolved" : "Nein",
-				"IN_BETRIEB_resolved" : "Ja",
+				"IN_BETRIEB_resolved" : "Nein",
 				"WASSERANSCHLUSS_resolved" : "Ja"
 			}
 		},
@@ -1277,6 +1277,27 @@
 			"properties" : {
 				"GlobalID" : "{8C0784A4-47BE-423E-A9FF-CCB45A1B6A7A}",
 				"NAME" : "Churchill-Quai",
+				"PLZ" : "6006",
+				"IN_BETRIEB" : 1,
+				"HINDERNISFREI" : 0,
+				"EUROKEY" : 0,
+				"WASSERANSCHLUSS" : 1,
+				"LINK_ROUTING" : null,
+				"EUROKEY_resolved" : "Nein",
+				"HINDERNISFREI_resolved" : "Nein",
+				"IN_BETRIEB_resolved" : "Ja",
+				"WASSERANSCHLUSS_resolved" : "Ja"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 2667175.081, 1212000.694 ]
+			},
+			"properties" : {
+				"GlobalID" : "{2FD566CC-EE6F-4252-B849-6C3E7227C326}",
+				"NAME" : "Hotel Beau Séjour",
 				"PLZ" : "6006",
 				"IN_BETRIEB" : 1,
 				"HINDERNISFREI" : 0,
