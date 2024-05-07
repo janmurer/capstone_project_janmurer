@@ -2,7 +2,7 @@ library(jsonlite)
 library(here)
 library(dplyr)
 
-# Fetch dataset using opendata.swiss API
+# Fetch dataset using the opendata.swiss API
 
 dataset_id <- "0d56b6ae-4db2-4080-a958-4fb54b11c988"
 fetch_opendata_swiss(dataset_id)
@@ -18,7 +18,7 @@ opendata_swiss_toilettes_combine_coordinates_features <- lapply(1:nrow(opendata_
    # Extract properties and coordinates
   
   properties <- opendata_swiss_toilettes$features$properties[i, ]
-  coordinates <- opendata_swiss_toilettes$features$geometry$coordinates[[i]]  # Access coordinates list
+  coordinates <- opendata_swiss_toilettes$features$geometry$coordinates[[i]]
   
   # Separate x and y coordinates
   
