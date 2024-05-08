@@ -15,22 +15,65 @@ The application uses the OpenCage API to get coordinates from an address and dat
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Load necessary libraries to set up wrapper functions to interact with API
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(tidyverse)
+library(here)
+library(httr)
+library(jsonlite)
 ```
 
-## Including Plots
+# Set variables for API keys and API-base URLs
 
-You can also embed plots, for example:
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Load API key from .csv using here package. Define base URL for OpenCage API.
+
+api_key_opencage <- read.csv(here("00_api_credentials", "api_credentials.csv")) %>%
+  pull(geocoding_api_key)
+
+base_url_opencage <- "https://api.opencagedata.com/geocode/v1/json"
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# Define wrapper function to interact with OpenCage API
+
+```{r}
+
+# Wrapperfunction to get user coordinates using OpenCage API
+
+get_user_coordinates <- function(user_location) {
+  
+  # Make a GET request
+  
+  geocoding_response <- httr::GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
+  
+  # Check status code
+  
+  if (geocoding_response$status_code == 200) {
+    
+    # Convert response to json
+    
+    geocoding_response_json <- httr::content(geocoding_response, as = "text") %>%
+      fromJSON()
+    
+    # Extract coordinates (latitude/longitude)
+    
+    user_lat <- geocoding_response_json$results$geometry$lat[1]
+    user_lng <- geocoding_response_json$results$geometry$lng[1]
+    
+    # Create a dataframe named user_coordinates
+    
+    user_coordinates <- data.frame(latitude = user_lat, longitude = user_lng)
+    
+    return(user_coordinates)
+    
+  } else {
+    
+    stop("Request failed with status code ", geocoding_response$status_code)
+ 
+     }
+}
+
+```
