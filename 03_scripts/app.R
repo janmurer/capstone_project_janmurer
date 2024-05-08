@@ -6,7 +6,7 @@ source("03_scripts/opendata_swiss.R")
 
 # UI
 ui <- fluidPage(
-  titlePanel("SeatSeekr: Find the Nearest Public Toilet in "),
+  titlePanel("SeatSeekr: Find the Nearest Public Toilet in Lucerne"),
   sidebarLayout(
     sidebarPanel(
       textInput("location", "Enter your current location:"),
