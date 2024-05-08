@@ -2,9 +2,10 @@ library(jsonlite)
 library(here)
 library(dplyr)
 
-# Fetch dataset using the opendata.swiss API
+# Fetch dataset using the opendata.swiss API and wrapperfunction.
 
 dataset_id <- "0d56b6ae-4db2-4080-a958-4fb54b11c988"
+
 fetch_opendata_swiss(dataset_id)
 
 # Load data using fromJSON and here

@@ -106,27 +106,41 @@ get_user_coordinates <- function(user_location) {
 
 
 # Function to find nearest location
+
 find_nearest_location <- function(user_coordinates, locations_df) {
   
   # Check if the user coordinates or locations data frame is empty
+  
   if (length(user_coordinates) == 0 || nrow(locations_df) == 0) {
+    
     return(NA)
-  }
+  
+    }
   
   # Calculate distances between user coordinates and each location
+  
   distances <- sqrt((locations_df$latitude - user_coordinates$latitude)^2 + 
                       (locations_df$longitude - user_coordinates$longitude)^2)
   
   # Find the index of the location with the minimum distance
+  
   nearest_index <- which.min(distances)
   
   # Check if a nearest location is found
+  
   if (length(nearest_index) > 0) {
+    
     # Return the name of the nearest location
+    
     return(locations_df$NAME[nearest_index])
+    
   } else {
+    
     # If no nearest location is found, return NA
+    
     return(NA)
+    
   }
+  
 }
 
