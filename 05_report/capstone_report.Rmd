@@ -5,28 +5,38 @@ output: html_document
 date: "2024-05-08"
 ---
 
+
 # Introduction
+
 
 As a capstone project for the seminar "Data Mining for the Social Sciences in R" i created a small shiny application that takes the current location of an user and shows the nearest available public toilet. 
 
 The application uses the OpenCage API to get coordinates from an address and data from the opendata.swiss API to get a list of all public toilettes in Lucerne.
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Load necessary libraries to set up wrapper functions to interact with API
+# functions.R
 
-```{r}
+This script is used to establish the functions necessary for the shiny app to work.
+
+Load necessary libraries for API interactions.
+
+
+```{r, message=FALSE}
 library(tidyverse)
 library(here)
 library(httr)
 library(jsonlite)
 ```
 
-# Set variables for API keys and API-base URLs
 
-```{r}
+Set up API keys and base URL for OpenCage API. Loading the API key from a local .csv file keeps the key secret.
+
+
+```{r, message=FALSE, warning=FALSE}
 
 # Load API key from .csv using here package. Define base URL for OpenCage API.
 
@@ -37,11 +47,13 @@ base_url_opencage <- "https://api.opencagedata.com/geocode/v1/json"
 
 ```
 
-# Define wrapper function to interact with OpenCage API
+
+Create wrapper function to access the OpenCage API for geocoding. The function takes an user location (address) as input and returns the coordinates of the location. The coordinates are stored in a data frame for further processing.
+
 
 ```{r}
 
-# Wrapperfunction to get user coordinates using OpenCage API
+# Wrapper function to get user coordinates using OpenCage API
 
 get_user_coordinates <- function(user_location) {
   
@@ -77,3 +89,327 @@ get_user_coordinates <- function(user_location) {
 }
 
 ```
+
+
+Create a wrapper function to fetch data from the opendata.swiss API. 
+
+The function takes the specific dataset ID as input, gets metadata on the dataset, extracts the download URL from the metadata, downloads the dataset, and unzips it to the folder "01_data_input". This is neccessary as the relevant dataframe is stored in a .json file wrapped in a .zip container when fetching from the opendata.swiss API.
+
+
+```{r}
+# Wrapper function to fetch data from opendata.swiss API
+
+fetch_opendata_swiss <- function(dataset_id) {
+  
+  # Construct API request URL
+  
+  url <- paste0("https://opendata.swiss/api/3/action/package_show?id=", dataset_id)
+  
+  # Make GET request
+  
+  response <- GET(url)
+  
+  # Check if request was successful
+  
+  if (http_type(response) == "application/json") {
+    
+    # Get the resource URL directly from the JSON response
+    
+    content <- content(response, "text")
+    json_content <- fromJSON(content)
+    
+    # Check if resources are available
+    
+    if (!is.null(json_content$result$resources)) {
+      
+      # Find the resource URL for the dataset you want to download
+      
+      resource_url <- json_content$result$resources$url[1]
+      
+      # Download the dataset
+      
+      dataset <- GET(resource_url)
+      
+      # Save the dataset to a temporary file
+      
+      temp_zip <- tempfile(fileext = ".zip")
+      writeBin(content(dataset, "raw"), temp_zip)
+      
+      # Unzip the dataset to "01_data_input" folder using base R function
+      
+      unzip(temp_zip, exdir = here("01_data_input"))
+      
+      return(paste("Dataset downloaded and extracted to '01_data_input' folder"))
+      
+    } else {
+      
+      return("No resources found for this dataset.")
+      
+    }
+    
+  } else {
+    
+    return("Failed to fetch data.")
+    
+  }
+}
+
+```
+
+
+Create a function calculate the geographical distance between two points, iterate over a list of locations and find the nearest location.
+
+
+```{r}
+
+find_nearest_location <- function(user_coordinates, locations_df) {
+  
+  # Check if the user coordinates or locations data frame is empty
+  
+  if (length(user_coordinates) == 0 || nrow(locations_df) == 0) {
+    
+    return(NA)
+  
+    }
+  
+  # Calculate distances between user coordinates and each location
+  
+  distances <- sqrt((locations_df$latitude - user_coordinates$latitude)^2 + 
+                      (locations_df$longitude - user_coordinates$longitude)^2)
+  
+  # Find the index of the location with the minimum distance
+  
+  nearest_index <- which.min(distances)
+  
+  # Check if a nearest location is found
+  
+  if (length(nearest_index) > 0) {
+    
+    # Return the name of the nearest location
+    
+    return(locations_df$NAME[nearest_index])
+    
+  } else {
+    
+    # If no nearest location is found, return NA
+    
+    return(NA)
+    
+  }
+  
+}
+
+```
+
+
+# opendata_swiss.R
+
+This script is used to fetch the data from the opendata.swiss API and prepare/clean the data for further processing. 
+
+Load necessary libraries for data cleaning and manipulation.
+
+```{r, message=FALSE}
+library(jsonlite)
+library(here)
+library(dplyr)
+```
+
+Define the dataset ID for the public toilettes dataset. The specific dataset ID was found on opendata.swiss. 
+
+Fetch the dataset using wrapper function.  
+
+```{r}
+# Fetch dataset using the opendata.swiss API and wrapper function.
+
+dataset_id <- "0d56b6ae-4db2-4080-a958-4fb54b11c988"
+
+fetch_opendata_swiss(dataset_id)
+
+```
+
+Load the dataset and create a dataframe. 
+
+```{r}
+
+# Load data using fromJSON and here
+
+opendata_swiss_toilettes <- fromJSON(here("01_data_input", "TOILETTE.json"))
+
+# Create a new list to store combined properties and coordinates
+
+opendata_swiss_toilettes_combine_coordinates_features <- lapply(1:nrow(opendata_swiss_toilettes$features), function(i) {
+ 
+   # Extract properties and coordinates
+  
+  properties <- opendata_swiss_toilettes$features$properties[i, ]
+  coordinates <- opendata_swiss_toilettes$features$geometry$coordinates[[i]]
+  
+  # Separate x and y coordinates
+  
+  x_coord <- coordinates[1]
+  y_coord <- coordinates[2]
+  
+  # Combine properties, x coordinate, and y coordinate into a single structure
+  
+  combined <- list(properties = properties, x_coord = x_coord, y_coord = y_coord)
+  
+  return(combined)
+})
+
+# Convert the list of lists into a dataframe
+
+opendata_swiss_toilettes_df <- bind_rows(opendata_swiss_toilettes_combine_coordinates_features)
+
+```
+
+Perform basic data cleaning and filtering. Remove locations where the toilet is not in operation.
+
+```{r}
+# Perform some data cleaning and filtering
+
+# Select relevant columns
+
+opendata_swiss_toilettes_df_cleaned <- opendata_swiss_toilettes_df %>%
+  mutate(NAME = properties$NAME,
+         IN_BETRIEB = properties$IN_BETRIEB,
+         HINDERNISFREI = properties$HINDERNISFREI) %>%
+  select(NAME, IN_BETRIEB, HINDERNISFREI, x_coord, y_coord)
+
+# Remove rows with IN_BETRIEB = 0
+
+opendata_swiss_toilettes_df_cleaned <- opendata_swiss_toilettes_df_cleaned %>%
+  filter(IN_BETRIEB == 1)
+
+```
+
+Transform coordinates in swiss coordinate system to international coordinates.
+
+Load the sf library to transform the coordinates.
+
+```{r, message=FALSE}
+library(sf)
+```
+
+Convert swiss coordinates to international coordinates and merge them with the existing dataframe.
+
+```{r}
+# Create an sf object with the coordinates
+
+coords_sf <- st_as_sf(opendata_swiss_toilettes_df_cleaned, coords = c("x_coord", "y_coord"))
+
+# Set the current CRS to EPSG:2056
+
+st_crs(coords_sf) <- 2056
+
+# Transform coordinates to EPSG:4326 (WGS 84)
+
+coords_sf_wgs84 <- st_transform(coords_sf, crs = 4326)
+
+# Extract transformed coordinates
+
+opendata_swiss_toilettes_df_cleaned_international_coordinates <- cbind(opendata_swiss_toilettes_df_cleaned, st_coordinates(coords_sf_wgs84))
+
+# Rename columns to reflect latitude and longitude instead of X and Y
+
+opendata_swiss_toilettes_df_cleaned_international_coordinates <- rename(opendata_swiss_toilettes_df_cleaned_international_coordinates, latitude = Y, longitude = X)
+
+```
+
+# app.R
+
+This script is used to create a graphical user interface for the application using the shiny package.
+
+Load the shiny package and source the necessary scripts.
+
+```{r, message=FALSE, warning=FALSE}
+library(shiny)
+
+# Source necessary scripts
+
+#source("03_scripts/functions.R")
+#source("03_scripts/opendata_swiss.R")
+
+```
+
+Define the user interface (UI) for the shiny app.
+
+```{r}
+# Define UI for shiny app
+
+ui <- fluidPage(
+  
+  titlePanel("SeatSeekr: Find the Nearest Public Toilet in Lucerne"), # Give the app a name
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      textInput("location", "Enter your current location:"), # Text input for user location
+      
+      actionButton("find_nearest", "Find Nearest Toilet", class = "btn-primary"),
+      
+      br(), # Insert line break for better separation between "Find Nearest Toilet" and "Quit Application" button.
+      
+      br(), 
+      
+      actionButton("quit_app", "Quit Application", class = "btn-danger")
+    ),
+    
+    mainPanel(
+      
+      verbatimTextOutput("nearest_toilet_output")
+      
+    )
+    
+  )
+  
+)
+```
+
+Define the server function for the shiny app.
+
+```{r}
+server <- function(input, output, session) {
+  
+  # Function to find nearest toilet when button is clicked
+  
+  nearest_toilet_output <- eventReactive(input$find_nearest, {
+    
+    # Get user coordinates
+    
+    user_coordinates <- get_user_coordinates(input$location)
+    
+    # Find nearest location
+    
+    nearest_toilet <- find_nearest_location(user_coordinates, opendata_swiss_toilettes_df_cleaned_international_coordinates)
+    
+    # Return nearest toilet information
+    
+    nearest_toilet
+    
+  })
+  
+  # Render output in dedicated box
+  
+  output$nearest_toilet_output <- renderText({
+    
+    result <- nearest_toilet_output()
+    
+    paste("The nearest public toilet is located at:", result)
+    
+  })
+  
+  # Quit application when quit button is clicked
+  
+  observeEvent(input$quit_app, {
+    
+    stopApp()
+ 
+     })
+
+}
+
+```
+
+
+

@@ -2,7 +2,7 @@ library(jsonlite)
 library(here)
 library(dplyr)
 
-# Fetch dataset using the opendata.swiss API and wrapperfunction.
+# Fetch dataset using the opendata.swiss API and wrapper function.
 
 dataset_id <- "0d56b6ae-4db2-4080-a958-4fb54b11c988"
 
@@ -57,7 +57,6 @@ opendata_swiss_toilettes_df_cleaned <- opendata_swiss_toilettes_df_cleaned %>%
 # Convert coordinates from swiss coordinate system to international
 
 library(sf)
-library(dplyr)
 
 # Create an sf object with the coordinates
 
