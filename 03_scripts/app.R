@@ -30,8 +30,6 @@ ui <- fluidPage(
 
   )
 
-# Define server logic
-
 server <- function(input, output, session) {
   
   # Function to find nearest toilet reactively when button is clicked
@@ -49,17 +47,17 @@ server <- function(input, output, session) {
     # Return nearest toilet information
     
     nearest_toilet
-  
-    })
+    
+  })
   
   # Render output in dedicated box
   
-  output$nearest_toilet_output <- renderPrint({
-    nearest_toilet_output()
-  
-    })
+  output$nearest_toilet_output <- renderText({
+    result <- nearest_toilet_output()
+    paste("The nearest public toilet is located at:", result)
+  })
+}
 
-  }
 
 # Run the application
 
