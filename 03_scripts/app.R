@@ -7,28 +7,21 @@ source("03_scripts/opendata_swiss.R")
 
 # Define UI
 
-ui <- fluidPage(
-  
-  titlePanel("SeatSeekr: Find the Nearest Public Toilet"),
-  
-  sidebarLayout(
-    
-    sidebarPanel(
-      
-      textInput("location", "Enter your current location:"),
-      actionButton("find_nearest", "Find Nearest Toilet")
-    
-      ),
-    
-    mainPanel(
-      
-      verbatimTextOutput("nearest_toilet_output")
-    
-      )
-  
-    )
 
+# UI
+ui <- fluidPage(
+  titlePanel("SeatSeekr: Find the Nearest Public Toilet in Lucerne"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("location", "Enter your current location:"),
+      actionButton("find_nearest", "Find Nearest Toilet", class = "btn-primary"),
+      width = 4  # Set the width of the sidebar panel
+    ),
+    mainPanel(
+      verbatimTextOutput("nearest_toilet_output")
+    )
   )
+)
 
 server <- function(input, output, session) {
   
