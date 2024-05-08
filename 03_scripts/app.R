@@ -5,27 +5,32 @@ library(shiny)
 source("03_scripts/functions.R")
 source("03_scripts/opendata_swiss.R")
 
-# Define UI
-
-
 # UI
+
 ui <- fluidPage(
-  titlePanel("SeatSeekr: Find the Nearest Public Toilet in Lucerne"),
+  
+  titlePanel("SeatSeekr: Find the Nearest Public Toilet"),
+  
   sidebarLayout(
+    
     sidebarPanel(
+      
       textInput("location", "Enter your current location:"),
-      actionButton("find_nearest", "Find Nearest Toilet", class = "btn-primary"),
-      width = 4  # Set the width of the sidebar panel
+      
+      actionButton("find_nearest", "Find Nearest Toilet", class = "btn-primary")
+      
     ),
     mainPanel(
+      
       verbatimTextOutput("nearest_toilet_output")
+      
     )
   )
 )
 
 server <- function(input, output, session) {
   
-  # Function to find nearest toilet reactively when button is clicked
+  # Function to find nearest toilet when button is clicked
   
   nearest_toilet_output <- eventReactive(input$find_nearest, {
     
@@ -46,11 +51,13 @@ server <- function(input, output, session) {
   # Render output in dedicated box
   
   output$nearest_toilet_output <- renderText({
+    
     result <- nearest_toilet_output()
+    
     paste("The nearest public toilet is located at:", result)
+    
   })
 }
-
 
 # Run the application
 
