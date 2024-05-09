@@ -1,14 +1,18 @@
+# Load necceary libraries
+
 library(tidyverse)
 library(here)
 library(httr)
 library(jsonlite)
 
-# Load API key from .csv using here package. Define base URL for OpenCage API.
+# Load API key from .csv using here package. Define base URL for OpenCage API
 
 api_key_opencage <- read.csv(here("00_api_credentials", "api_credentials.csv")) %>%
   pull(geocoding_api_key)
 
 base_url_opencage <- "https://api.opencagedata.com/geocode/v1/json"
+
+
 
 # Wrapperfunction to fetch data from opendata.swiss API
 
@@ -35,7 +39,7 @@ fetch_opendata_swiss <- function(dataset_id) {
     
     if (!is.null(json_content$result$resources)) {
       
-      # Find the resource URL for the dataset you want to download
+      # Extract the resource URL for the dataset to download
       
       resource_url <- json_content$result$resources$url[1]
       
@@ -66,6 +70,7 @@ fetch_opendata_swiss <- function(dataset_id) {
     
   }
 }
+
 
 
 # Wrapperfunction to get user coordinates using OpenCage API

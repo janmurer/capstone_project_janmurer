@@ -5,9 +5,7 @@ output: html_document
 date: "2024-05-08"
 ---
 
-
 # Introduction
-
 
 As a capstone project for the seminar "Data Mining for the Social Sciences in R" i created a small shiny application that takes the current user location/address and shows the nearest available public toilet. 
 
@@ -414,9 +412,52 @@ server <- function(input, output, session) {
 
 ```
 
+# Limitations
+
+#### API Key
+
+The application wont work as a standalone application, as the API key for the OpenCage API is not included in the repository. 
+
+#### Fragile Code
+
+The design of the code is rather fragile. The code may break if the API's change or the structure of the dataset changes. 
+
+#### Distance Calculation
+
+The distances between two points are calculated using the Euclidean distance formula. This does not reflect the real world as road routing is not considered and the earth is not flat.
+
+#### The use of LLM's for coding
+
+The application was entirely coded using ChatGPT and Microsoft Copilot. Therefore the code may show inconsistencies up on closer inspection. Although the code was tested, it may not stick to coding best practices and conventions. 
+
+#### RStudio
+
+RStudio is certainly not the best choice for developing and running an application, as it is not designed for this purpose. 
+
+# Outlook
+
+The application could be changed to run on the web using services like shinyapps.io. This would make the application more useable and accessible for phones. 
+
+The code of the application could be further improved and made more robust. 
+
+The application could be extended to show more information about a certain toilet, for example if it is accessible by a wheelchair. 
+
+Other potential features of the application could be the implementation of a map or a route planner.  
+
 # Conclusion
 
 "SeatSeekr" is a rather primitive application that finds the nearest public toilet in Lucerne based on the users given location. 
 
+Given the fact that i had no prior experience with coding in general, i am quite happy with the results.
 
+As the application does not work as a standalone, i provided a **proof of concept** in the github repository. 
 
+# References
+
+- OpenCage: https://opencagedata.com/
+- opendata.swiss: https://opendata.swiss/
+
+- ChatGPT: https://chat.openai.com/
+- Microsoft Copilot: https://copilot.github.com/
+
+- Simmilar project: https://map.stadtluzern.ch/wc-app/

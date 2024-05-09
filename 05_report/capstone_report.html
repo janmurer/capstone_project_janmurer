@@ -379,6 +379,9 @@ processing.</li>
 the application.</li>
 </ul>
 <p>Further i will disect each script and explain the code in detail.</p>
+</div>
+<div id="scripts" class="section level1">
+<h1>Scripts</h1>
 <div id="functions.r" class="section level2">
 <h2>functions.R</h2>
 <p>This script is used to establish the functions necessary for the
@@ -631,8 +634,9 @@ coordinate system, where as the coordinates received from the OpenCage
 API are in the World Geodetic System (WGS 84). In order to compare the
 coordinates and calculate the distance, coordinates in EPSG:2056 need to
 be converted to WGS 84. This is done using the sf package.</p>
-<pre class="r"><code>library(sf)</code></pre>
-<pre class="r"><code># Create an sf object with the coordinates
+<pre class="r"><code>library(sf)
+
+# Create an sf object with the coordinates
 
 coords_sf &lt;- st_as_sf(opendata_swiss_toilettes_df_cleaned, coords = c(&quot;x_coord&quot;, &quot;y_coord&quot;))
 
@@ -656,31 +660,39 @@ opendata_swiss_toilettes_df_cleaned_international_coordinates &lt;- rename(opend
 <h2>app.R</h2>
 <p>This script is used to create a graphical user interface for the
 application using the shiny package.</p>
-<p>Load the shiny package and source the necessary scripts.</p>
-<pre class="r"><code># Source necessary scripts
-
-source(&quot;03_scripts/functions.R&quot;)
+<p>First, the script runs the scripts functions.R and opendata_swiss.R
+to establish the R environment for the application.</p>
+<pre class="r"><code>source(&quot;03_scripts/functions.R&quot;)
 source(&quot;03_scripts/opendata_swiss.R&quot;)</code></pre>
-<p>Define the user interface (UI) for the shiny app.</p>
+<p>This part of the script defines the user interface (UI) for the shiny
+app.</p>
 <pre class="r"><code>library(shiny)
 
 # Define UI for shiny app
 
 ui &lt;- fluidPage(
   
-  titlePanel(&quot;SeatSeekr: Find the Nearest Public Toilet in Lucerne&quot;), # Give the app a name
+  # Application title
+  
+  titlePanel(&quot;SeatSeekr: Find the Nearest Public Toilet in Lucerne&quot;),
   
   sidebarLayout(
     
     sidebarPanel(
       
-      textInput(&quot;location&quot;, &quot;Enter your current location:&quot;), # Text input for user location
+      # Text input for user location
+      
+      textInput(&quot;location&quot;, &quot;Enter your current location:&quot;), 
       
       actionButton(&quot;find_nearest&quot;, &quot;Find Nearest Toilet&quot;, class = &quot;btn-primary&quot;),
       
-      br(), # Insert line break for better separation between &quot;Find Nearest Toilet&quot; and &quot;Quit Application&quot; button.
+      # Insert line break for better separation between &quot;Find Nearest Toilet&quot; and &quot;Quit Application&quot; button.
       
       br(), 
+      
+      br(), 
+      
+      # Add &quot;Quit Application&quot; button to stop the shiny app
       
       actionButton(&quot;quit_app&quot;, &quot;Quit Application&quot;, class = &quot;btn-danger&quot;)
     ),
@@ -694,7 +706,15 @@ ui &lt;- fluidPage(
   )
   
 )</code></pre>
-<p>Define the server function for the shiny app.</p>
+<p>This part of the script defines the server logic for the shiny
+app.</p>
+<p>The script “waits” for the user enter a location and press the “Find
+Nearest Toilet” button. When the button is clicked, the functions
+get_user_coordinates() and find_nearest_location() are called to find
+the nearest public toilet.</p>
+<p>The results are then rendered in a dedicated box.</p>
+<p>The application stops when the “Quit Application” button is
+clicked.</p>
 <pre class="r"><code>server &lt;- function(input, output, session) {
   
   # Function to find nearest toilet when button is clicked
@@ -735,6 +755,68 @@ ui &lt;- fluidPage(
 
 }</code></pre>
 </div>
+</div>
+<div id="limitations" class="section level1">
+<h1>Limitations</h1>
+<div id="api-key" class="section level4">
+<h4>API Key</h4>
+<p>The application wont work as a standalone application, as the API key
+for the OpenCage API is not included in the repository.</p>
+</div>
+<div id="fragile-code" class="section level4">
+<h4>Fragile Code</h4>
+<p>The design of the code is rather fragile. The code may break if the
+API’s change or the structure of the dataset changes.</p>
+</div>
+<div id="distance-calculation" class="section level4">
+<h4>Distance Calculation</h4>
+<p>The distances between two points are calculated using the Euclidean
+distance formula. This does not reflect the real world as road routing
+is not considered and the earth is not flat.</p>
+</div>
+<div id="the-use-of-llms-for-coding" class="section level4">
+<h4>The use of LLM’s for coding</h4>
+<p>The application was entirely coded using ChatGPT and Microsoft
+Copilot. Therefore the code may show inconsistencies up on closer
+inspection. Although the code was tested, it may not stick to coding
+best practices and conventions.</p>
+</div>
+<div id="rstudio" class="section level4">
+<h4>RStudio</h4>
+<p>RStudio is certainly not the best choice for developing and running
+an application, as it is not designed for this purpose.</p>
+</div>
+</div>
+<div id="outlook" class="section level1">
+<h1>Outlook</h1>
+<p>The application could be changed to run on the web using services
+like shinyapps.io. This would make the application more useable and
+accessible for phones.</p>
+<p>The code of the application could be further improved and made more
+robust.</p>
+<p>The application could be extended to show more information about a
+certain toilet, for example if it is accessible by a wheelchair.</p>
+<p>Other potential features of the application could be the
+implementation of a map or a route planner.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>“SeatSeekr” is a rather primitive application that finds the nearest
+public toilet in Lucerne based on the users given location.</p>
+<p>Given the fact that i had no prior experience with coding in general,
+i am quite happy with the results.</p>
+<p>As the application does not work as a standalone, i provided a
+<strong>proof of concept</strong> in the github repository.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li><p>OpenCage: <a href="https://opencagedata.com/" class="uri">https://opencagedata.com/</a></p></li>
+<li><p>opendata.swiss: <a href="https://opendata.swiss/" class="uri">https://opendata.swiss/</a></p></li>
+<li><p>ChatGPT: <a href="https://chat.openai.com/" class="uri">https://chat.openai.com/</a></p></li>
+<li><p>Microsoft Copilot: <a href="https://copilot.github.com/" class="uri">https://copilot.github.com/</a></p></li>
+<li><p>Simmilar project: <a href="https://map.stadtluzern.ch/wc-app/" class="uri">https://map.stadtluzern.ch/wc-app/</a></p></li>
+</ul>
 </div>
 
 
