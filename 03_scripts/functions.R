@@ -74,7 +74,7 @@ get_user_coordinates <- function(user_location) {
   
   # Make a GET request
   
-  geocoding_response <- httr::GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
+  geocoding_response <- GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
   
   # Check status code
   
@@ -82,7 +82,7 @@ get_user_coordinates <- function(user_location) {
     
     # Convert response to json
     
-    geocoding_response_json <- httr::content(geocoding_response, as = "text") %>%
+    geocoding_response_json <- content(geocoding_response, as = "text") %>%
       fromJSON()
     
     # Extract coordinates (latitude/longitude)

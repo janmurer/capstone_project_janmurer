@@ -13,7 +13,7 @@
 
 <meta name="date" content="2024-05-08" />
 
-<title>SeatSeekr</title>
+<title>SeatSeekr: Find the Nearest Public Toilet in Lucerne</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,7 +350,8 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">SeatSeekr</h1>
+<h1 class="title toc-ignore">SeatSeekr: Find the Nearest Public Toilet
+in Lucerne</h1>
 <h4 class="author">Jan Murer, <a href="mailto:jan.murer@stud.unilu.ch" class="email">jan.murer@stud.unilu.ch</a>, 17-100-777</h4>
 <h4 class="date">2024-05-08</h4>
 
@@ -361,40 +362,56 @@ display: none;
 <h1>Introduction</h1>
 <p>As a capstone project for the seminar “Data Mining for the Social
 Sciences in R” i created a small shiny application that takes the
-current location of an user and shows the nearest available public
+current user location/address and shows the nearest available public
 toilet.</p>
 <p>The application uses the OpenCage API to get coordinates from an
-address and data from the opendata.swiss API to get a list of all public
-toilettes in Lucerne.</p>
-</div>
-<div id="functions.r" class="section level1">
-<h1>functions.R</h1>
+address (geocoding) and the opendata.swiss API to get a dataset of all
+public toilettes in Lucerne.</p>
+<p>The application is structured in three different scripts:</p>
+<ul>
+<li>functions.R: This script contains wrapper functions to interact with
+API’s and a function to calculate the geographical distance between two
+points.</li>
+<li>opendata_swiss.R: This script is used to download the dataset from
+the opendata.swiss API and prepare/transform the data for further
+processing.</li>
+<li>app.R: This script is used to create a graphical user interface for
+the application.</li>
+</ul>
+<p>Further i will disect each script and explain the code in detail.</p>
+<div id="functions.r" class="section level2">
+<h2>functions.R</h2>
 <p>This script is used to establish the functions necessary for the
 shiny app to work.</p>
-<p>Load necessary libraries for API interactions.</p>
-<pre class="r"><code>library(tidyverse)
+<pre class="r"><code># Load necessary libraries for API interaction
+
+library(tidyverse)
 library(here)
 library(httr)
 library(jsonlite)</code></pre>
 <p>Set up API keys and base URL for OpenCage API. Loading the API key
-from a local .csv file keeps the key secret.</p>
-<pre class="r"><code># Load API key from .csv using here package. Define base URL for OpenCage API.
+from a local .csv file keeps the key secret. This way, the key does not
+show up in the code and can be excluded in the .gitignore file
+(therefore it is not being pushed when working with git).</p>
+<pre class="r"><code># Load API key from .csv using here package. Define base URL for OpenCage API
 
 api_key_opencage &lt;- read.csv(here(&quot;00_api_credentials&quot;, &quot;api_credentials.csv&quot;)) %&gt;%
   pull(geocoding_api_key)
 
 base_url_opencage &lt;- &quot;https://api.opencagedata.com/geocode/v1/json&quot;</code></pre>
-<p>Create wrapper function to access the OpenCage API for geocoding. The
-function takes an user location (address) as input and returns the
-coordinates of the location. The coordinates are stored in a data frame
-for further processing.</p>
+<p>The following block of code creates a wrapper function to access and
+interact with the OpenCage API. The function takes an user location
+(address) as input and returns the coordinates of the location. The user
+coordinates are stored in a data frame for further processing. The
+wrapper function does not contain a Sys.sleep() function, as the
+application should not call the API excessively.</p>
 <pre class="r"><code># Wrapper function to get user coordinates using OpenCage API
 
 get_user_coordinates &lt;- function(user_location) {
   
   # Make a GET request
   
-  geocoding_response &lt;- httr::GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
+  geocoding_response &lt;- GET(url = base_url_opencage, query = list(q = user_location, key = api_key_opencage))
   
   # Check status code
   
@@ -402,7 +419,7 @@ get_user_coordinates &lt;- function(user_location) {
     
     # Convert response to json
     
-    geocoding_response_json &lt;- httr::content(geocoding_response, as = &quot;text&quot;) %&gt;%
+    geocoding_response_json &lt;- content(geocoding_response, as = &quot;text&quot;) %&gt;%
       fromJSON()
     
     # Extract coordinates (latitude/longitude)
@@ -422,13 +439,21 @@ get_user_coordinates &lt;- function(user_location) {
  
      }
 }</code></pre>
-<p>Create a wrapper function to fetch data from the opendata.swiss
-API.</p>
-<p>The function takes the specific dataset ID as input, gets metadata on
-the dataset, extracts the download URL from the metadata, downloads the
-dataset, and unzips it to the folder “01_data_input”. This is neccessary
-as the relevant dataframe is stored in a .json file wrapped in a .zip
-container when fetching from the opendata.swiss API.</p>
+<p>The following block of code creates a wrapper function to interact
+with the opendata.swiss API. The API does not allow direct interaction
+with the dataset. Instead, the function fetches metadata on the dataset,
+extracts the download URL from the metadata and then continues to
+download the dataset. The data is stored in a .json file wrapped in a
+.zip container. The function automatically unzips the dataset to the
+folder “01_data_input”.</p>
+<p>The function takes a dataset ID as input. The specific dataset ID was
+found “manually” on the opendata.swiss website. The ID is not stored in
+the functions.R script, so the function can be used for different
+datasets.</p>
+<p>The application would also work with a locally stored dataset and
+therefore be more robust and efficient. As the list of locations
+potentionally could be updated in the future, the application fetches
+the most recent dataframe.</p>
 <pre class="r"><code># Wrapper function to fetch data from opendata.swiss API
 
 fetch_opendata_swiss &lt;- function(dataset_id) {
@@ -445,7 +470,7 @@ fetch_opendata_swiss &lt;- function(dataset_id) {
   
   if (http_type(response) == &quot;application/json&quot;) {
     
-    # Get the resource URL directly from the JSON response
+    # Extract the resource URL directly from the JSON response
     
     content &lt;- content(response, &quot;text&quot;)
     json_content &lt;- fromJSON(content)
@@ -454,7 +479,7 @@ fetch_opendata_swiss &lt;- function(dataset_id) {
     
     if (!is.null(json_content$result$resources)) {
       
-      # Find the resource URL for the dataset you want to download
+      # Extract the resource URL for the dataset you want to download and store in a variable
       
       resource_url &lt;- json_content$result$resources$url[1]
       
@@ -467,7 +492,7 @@ fetch_opendata_swiss &lt;- function(dataset_id) {
       temp_zip &lt;- tempfile(fileext = &quot;.zip&quot;)
       writeBin(content(dataset, &quot;raw&quot;), temp_zip)
       
-      # Unzip the dataset to &quot;01_data_input&quot; folder using base R function
+      # Unzip the dataset to &quot;01_data_input&quot; folder using base R function and here
       
       unzip(temp_zip, exdir = here(&quot;01_data_input&quot;))
       
@@ -485,10 +510,16 @@ fetch_opendata_swiss &lt;- function(dataset_id) {
     
   }
 }</code></pre>
-<p>Create a function calculate the geographical distance between two
-points, iterate over a list of locations and find the nearest
+<p>The following function is used to find the nearest location to the
+current user location. The geographical distance between two points is
+calculated using the Euclidean distance formula. The function takes the
+user coordinates and a dataframe with locations as input. After
+calculating the distance between the user coordinates and each location
+in the dataframe, the function returns the name of the nearest
 location.</p>
-<pre class="r"><code>find_nearest_location &lt;- function(user_coordinates, locations_df) {
+<pre class="r"><code># Create function to calculate geographical distance between two points, iterate over list of locations and return the nearest location
+
+find_nearest_location &lt;- function(user_coordinates, locations_df) {
   
   # Check if the user coordinates or locations data frame is empty
   
@@ -525,24 +556,34 @@ location.</p>
   
 }</code></pre>
 </div>
-<div id="opendata_swiss.r" class="section level1">
-<h1>opendata_swiss.R</h1>
-<p>This script is used to fetch the data from the opendata.swiss API and
-prepare/clean the data for further processing.</p>
-<p>Load necessary libraries for data cleaning and manipulation.</p>
-<pre class="r"><code>library(jsonlite)
+<div id="opendata_swiss.r" class="section level2">
+<h2>opendata_swiss.R</h2>
+<p>This script is used to obtain the data from the opendata.swiss API.
+Further the script is used to prepare and clean the data for further
+processing.</p>
+<pre class="r"><code># Load necessary libraries
+
+library(jsonlite)
 library(here)
 library(dplyr)</code></pre>
-<p>Define the dataset ID for the public toilettes dataset. The specific
-dataset ID was found on opendata.swiss.</p>
-<p>Fetch the dataset using wrapper function.</p>
-<pre class="r"><code># Fetch dataset using the opendata.swiss API and wrapper function.
+<p>The following block of code stores the dataset ID in a variable and
+fetches the dataset using the previously created wrapper function. When
+using the wrapper function, the dataset is automatically unzipped and
+stored in the folder “01_data_input”.</p>
+<pre class="r"><code># Fetch dataset using the opendata.swiss API and wrapper function
 
 dataset_id &lt;- &quot;0d56b6ae-4db2-4080-a958-4fb54b11c988&quot;
 
 fetch_opendata_swiss(dataset_id)</code></pre>
 <pre><code>## [1] &quot;Dataset downloaded and extracted to &#39;01_data_input&#39; folder&quot;</code></pre>
-<p>Load the dataset and create a dataframe.</p>
+<p>In a next step, the data is loaded from the .json file. As the data
+comes in a nested structure, with the features of each location
+separated from its respective coordinates, the script extracts
+properties and coordinates from the .json. Because both x and y
+coordinates are stored as one value in the fetched source file, the
+script continues to separate the coordinates into two values. Finally,
+the script combines the properties of each location, the x coordinate
+and the y coordinate into a single dataframe.</p>
 <pre class="r"><code># Load data using fromJSON and here
 
 opendata_swiss_toilettes &lt;- fromJSON(here(&quot;01_data_input&quot;, &quot;TOILETTE.json&quot;))
@@ -571,11 +612,9 @@ opendata_swiss_toilettes_combine_coordinates_features &lt;- lapply(1:nrow(openda
 # Convert the list of lists into a dataframe
 
 opendata_swiss_toilettes_df &lt;- bind_rows(opendata_swiss_toilettes_combine_coordinates_features)</code></pre>
-<p>Perform basic data cleaning and filtering. Remove locations where the
-toilet is not in operation.</p>
-<pre class="r"><code># Perform some data cleaning and filtering
-
-# Select relevant columns
+<p>After storing the data in a dataframe, the script continues to
+perform basic data cleaning and filtering.</p>
+<pre class="r"><code># Select relevant columns
 
 opendata_swiss_toilettes_df_cleaned &lt;- opendata_swiss_toilettes_df %&gt;%
   mutate(NAME = properties$NAME,
@@ -583,16 +622,16 @@ opendata_swiss_toilettes_df_cleaned &lt;- opendata_swiss_toilettes_df %&gt;%
          HINDERNISFREI = properties$HINDERNISFREI) %&gt;%
   select(NAME, IN_BETRIEB, HINDERNISFREI, x_coord, y_coord)
 
-# Remove rows with IN_BETRIEB = 0
+# Remove rows with IN_BETRIEB = 0 (toilets not in operation)
 
 opendata_swiss_toilettes_df_cleaned &lt;- opendata_swiss_toilettes_df_cleaned %&gt;%
   filter(IN_BETRIEB == 1)</code></pre>
-<p>Transform coordinates in swiss coordinate system to international
-coordinates.</p>
-<p>Load the sf library to transform the coordinates.</p>
+<p>The coordinates stored in the .json file are in the EPSG:2056
+coordinate system, where as the coordinates received from the OpenCage
+API are in the World Geodetic System (WGS 84). In order to compare the
+coordinates and calculate the distance, coordinates in EPSG:2056 need to
+be converted to WGS 84. This is done using the sf package.</p>
 <pre class="r"><code>library(sf)</code></pre>
-<p>Convert swiss coordinates to international coordinates and merge them
-with the existing dataframe.</p>
 <pre class="r"><code># Create an sf object with the coordinates
 
 coords_sf &lt;- st_as_sf(opendata_swiss_toilettes_df_cleaned, coords = c(&quot;x_coord&quot;, &quot;y_coord&quot;))
@@ -613,19 +652,19 @@ opendata_swiss_toilettes_df_cleaned_international_coordinates &lt;- cbind(openda
 
 opendata_swiss_toilettes_df_cleaned_international_coordinates &lt;- rename(opendata_swiss_toilettes_df_cleaned_international_coordinates, latitude = Y, longitude = X)</code></pre>
 </div>
-<div id="app.r" class="section level1">
-<h1>app.R</h1>
+<div id="app.r" class="section level2">
+<h2>app.R</h2>
 <p>This script is used to create a graphical user interface for the
 application using the shiny package.</p>
 <p>Load the shiny package and source the necessary scripts.</p>
+<pre class="r"><code># Source necessary scripts
+
+source(&quot;03_scripts/functions.R&quot;)
+source(&quot;03_scripts/opendata_swiss.R&quot;)</code></pre>
+<p>Define the user interface (UI) for the shiny app.</p>
 <pre class="r"><code>library(shiny)
 
-# Source necessary scripts
-
-#source(&quot;03_scripts/functions.R&quot;)
-#source(&quot;03_scripts/opendata_swiss.R&quot;)</code></pre>
-<p>Define the user interface (UI) for the shiny app.</p>
-<pre class="r"><code># Define UI for shiny app
+# Define UI for shiny app
 
 ui &lt;- fluidPage(
   
@@ -695,6 +734,7 @@ ui &lt;- fluidPage(
      })
 
 }</code></pre>
+</div>
 </div>
 
 
