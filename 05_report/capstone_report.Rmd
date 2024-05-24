@@ -273,7 +273,7 @@ ui <- fluidPage(
 
 This part of the script defines the server logic for the shiny app. 
 
-The script "waits" for the user enter a location and press the "Find Nearest Toilet" button. When the button is clicked, the functions get_user_coordinates() and find_nearest_location() are called to find the nearest public toilet. 
+The script "waits" for the user to enter a location and press the "Find Nearest Toilet" button. When the button is clicked, the functions get_user_coordinates() and find_nearest_location() are called to find the nearest public toilet. 
 
 The results are then rendered in a dedicated box.
 
@@ -333,17 +333,17 @@ The application could be adjusted to run on the web using services like shinyapp
 
 The code of the application could be further improved and made more robust. 
 
-The application could be extended to show more information about a certain toilet, for example if it is accessible by a wheelchair.
+The application could be extended to show more information about a certain toilet, for example, if it is accessible by a wheelchair.
 
 Other potential features of the application could be the implementation of a map or a route planner.  
 
 # Conclusion
 
-"SeatSeekr" is a rather primitive application that finds the nearest public toilet in Lucerne based on the user's given location. 
+"SeatSeekr" is a rather primitive application that finds the nearest public toilet in Lucerne, based on the user's given location. 
 
 Given the fact that I had no prior experience with coding in general, I am quite happy with the results.
 
-As the application does not work as a standalone, I provided a **proof of concept** in the github repository. 
+As the application does not work as a standalone, I provided a **proof of concept** in the GitHub repository. 
 
 # References
 
