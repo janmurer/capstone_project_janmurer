@@ -25,7 +25,7 @@ install.packages(c(
 
 Additionally, you need a private API key to use the OpenCage API. You can get a free API key by signing up on the [OpenCage website](https://opencagedata.com/).
 
-Store the key in a .csv file in the folder "00_api_credentials" and name the file "api_credentials.csv". The title of the column should be "geocoding_api_key" and the key should be stored in the first cell of the second row. You may use Microsoft Excel or Google Sheets to create the file.
+Store the key in a .csv file in the folder "00_api_credentials" and name the file "api_credentials.csv". The title of the column should be "geocoding_api_key" (without quotation marks) and the key should be stored in the first cell of the second row. You may use Microsoft Excel or Google Sheets to create the file.
 
 To run the application, execute the script "app.R" in Rstudio. The script is located in the folder "03_scripts".
 
