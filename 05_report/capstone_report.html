@@ -484,6 +484,7 @@ calculating the distance between the user coordinates and each location
 in the data frame, the function returns the name of the nearest
 location.</p>
 <pre class="r"><code># Create function to calculate geographical distance between two points, iterate over list of locations and return the nearest location.
+
 find_nearest_location &lt;- function(user_coordinates, locations_df) {
   # Check if the user coordinates or locations data frame is empty.
   if (length(user_coordinates) == 0 || nrow(locations_df) == 0) {
@@ -598,6 +599,7 @@ app.</p>
 <pre class="r"><code>library(shiny)
 
 # Define UI for shiny app.
+
 ui &lt;- fluidPage(
   # Define application title.
   titlePanel(&quot;SeatSeekr: Find the Nearest Public Toilet in Lucerne&quot;),

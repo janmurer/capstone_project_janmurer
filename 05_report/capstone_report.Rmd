@@ -121,6 +121,7 @@ The following function is used to find the nearest location to the current user'
 
 ```{r}
 # Create function to calculate geographical distance between two points, iterate over list of locations and return the nearest location.
+
 find_nearest_location <- function(user_coordinates, locations_df) {
   # Check if the user coordinates or locations data frame is empty.
   if (length(user_coordinates) == 0 || nrow(locations_df) == 0) {
@@ -170,7 +171,6 @@ fetch_opendata_swiss(dataset_id)
 In the next step, the data is loaded from the .json file. As the data comes in a nested structure, with the features of each location separated from its respective coordinates, the script extracts properties and coordinates from the .json. Because both x and y coordinates are stored as one value in the fetched source file, the script continues to separate the coordinates into two values. Finally, the script combines the properties of each location, the x coordinate, and the y coordinate into a single data frame. 
 
 ```{r}
-
 # Load data using fromJSON and here.
 
 opendata_swiss_toilettes <- fromJSON(here("01_data_input", "TOILETTE.json"))
@@ -249,6 +249,7 @@ This part of the script defines the user interface (UI) for the shiny app.
 library(shiny)
 
 # Define UI for shiny app.
+
 ui <- fluidPage(
   # Define application title.
   titlePanel("SeatSeekr: Find the Nearest Public Toilet in Lucerne"),
